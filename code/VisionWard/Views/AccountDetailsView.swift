@@ -5,16 +5,19 @@
 //  Created by Andreas Felder on 25.09.2025.
 //
 import SwiftUI
+import SwiftData
 
 struct AccountDetailsView: View {
-    @StateObject private var accountViewModel = AccountViewModel()
+    @State private var accountViewModel = AccountViewModel()
     
     
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
             if accountViewModel.account == nil {
                     Button("Test Riot API") {
-                        testRiot()
+                        Task {
+                            await testRiot()
+                        }
                     }
             }
             if accountViewModel.isLoading {
@@ -34,9 +37,9 @@ struct AccountDetailsView: View {
         }
     }
     
-    private func testRiot() {
+    private func testRiot() async {
         print("riot pressed..")
-        accountViewModel.fetchAccount(gameName: "Enze", tagLine: "0001", region: "euw")
+        await accountViewModel.fetchAccount(gameName: "Enze", tagLine: "0001", region: "euw")
     }
 }
 

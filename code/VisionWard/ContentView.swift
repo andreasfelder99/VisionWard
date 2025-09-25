@@ -43,7 +43,7 @@ struct ContentView: View {
                     Text("Select a menu item.")
                 }
             }
-        }
+        }.modelContainer(for: [Account.self])
     }
 
     private var tabView: some View {
@@ -56,7 +56,7 @@ struct ContentView: View {
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")
                 }
-        }
+        }.modelContainer(for: [Account.self])
     }
 }
 
