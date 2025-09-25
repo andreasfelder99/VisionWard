@@ -11,14 +11,11 @@ struct AccountDetailsView: View {
     
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .center, spacing: 10) {
             if accountViewModel.account == nil {
-                HStack {
                     Button("Test Riot API") {
                         testRiot()
                     }
-                    Spacer()
-                }
             }
             if accountViewModel.isLoading {
                 ProgressView("Fetching data...")
@@ -43,4 +40,6 @@ struct AccountDetailsView: View {
     }
 }
 
-
+#Preview {
+    AccountDetailsView()
+}

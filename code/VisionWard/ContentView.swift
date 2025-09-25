@@ -10,8 +10,21 @@ import SwiftData
 
 struct ContentView: View {
     @State private var selection: MenuSelection? = .accountDetails
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
+        #if os(macOS)
+        splitView
+        #else
+        if horizontalSizeClass == .regular {
+            splitView
+        } else {
+            tabView
+        }
+        #endif
+    }
+
+    private var splitView: some View {
         NavigationSplitView {
             List(selection: $selection) {
                 ForEach(MenuSelection.allCases) { item in
@@ -32,7 +45,21 @@ struct ContentView: View {
             }
         }
     }
+
+    private var tabView: some View {
+        TabView {
+            AccountDetailsView()
+                .tabItem {
+                    Label("Account", systemImage: "person")
+                }
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape")
+                }
+        }
+    }
 }
+
 
 #Preview {
     ContentView()
