@@ -37,6 +37,9 @@ struct ContentView: View {
                     Button(action: addItem) {
                         Label("Add Item", systemImage: "plus")
                     }
+                    Button(action: testRiot) {
+                        Label("Riot", systemImage: "minus")
+                    }
                 }
             }
         } detail: {
@@ -57,6 +60,10 @@ struct ContentView: View {
                 modelContext.delete(items[index])
             }
         }
+    }
+    
+    private func testRiot() {
+        
     }
 }
 
