@@ -28,7 +28,7 @@ class RiotAPIService {
         }
     }
     
-    func getAccountByRiotID(gameName: String, tagLine: String, region: String) async throws -> RiotAccount {
+    func getAccountByRiotID(gameName: String, tagLine: String, region: String) async throws -> RiotAccountDTO {
         let regionalRouting = "europe"
         
         let urlString = "https://\(regionalRouting).api.riotgames.com/riot/account/v1/accounts/by-riot-id/\(gameName)/\(tagLine)"
@@ -47,7 +47,7 @@ class RiotAPIService {
             throw URLError(.badServerResponse)
         }
         
-        let account = try JSONDecoder().decode(RiotAccount.self, from: data)
+        let account = try JSONDecoder().decode(RiotAccountDTO.self, from: data)
         return account
     }
 }

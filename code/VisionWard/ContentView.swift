@@ -11,6 +11,7 @@ import SwiftData
 struct ContentView: View {
     @State private var selection: MenuSelection? = .accountDetails
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.modelContext) private var context
 
     var body: some View {
         #if os(macOS)
@@ -36,19 +37,19 @@ struct ContentView: View {
             NavigationStack {
                 switch selection {
                 case .accountDetails:
-                    AccountDetailsView()
+                    AccountDetailsView(context: context)
                 case .settings:
                     SettingsView()
                 case .none:
                     Text("Select a menu item.")
                 }
             }
-        }.modelContainer(for: [Account.self])
+        }.modelContainer(for: [RiotAccount.self])
     }
 
     private var tabView: some View {
         TabView {
-            AccountDetailsView()
+            AccountDetailsView(context: context)
                 .tabItem {
                     Label("Account", systemImage: "person")
                 }
@@ -56,7 +57,7 @@ struct ContentView: View {
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")
                 }
-        }.modelContainer(for: [Account.self])
+        }.modelContainer(for: [RiotAccount.self])
     }
 }
 

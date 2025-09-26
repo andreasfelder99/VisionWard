@@ -13,12 +13,15 @@ import SwiftUI
 @Observable
 final class AccountViewModel {
     private let riotAPIService = RiotAPIService()
+    private let accountRepository: ProfileRepository
     
-    var account: RiotAccount?
+    
+    var account: RiotAccountDTO?
     var isLoading = false
     var errorMessage: String?
 
-    init(account: RiotAccount? = nil, isLoading: Bool = false, errorMessage: String? = nil) {
+    init(repository: ProfileRepository, account: RiotAccountDTO? = nil, isLoading: Bool = false, errorMessage: String? = nil) {
+        self.accountRepository = repository
         self.account = account
         self.isLoading = isLoading
         self.errorMessage = errorMessage
@@ -31,11 +34,21 @@ final class AccountViewModel {
             do {
                 let fetchedAccount = try await riotAPIService.getAccountByRiotID(gameName: gameName, tagLine: tagLine, region: region)
                 self.account = fetchedAccount
+                try await accountRepository.saveRiotAccount(riotAccountDTO: fetchedAccount)
             } catch {
                 self.errorMessage = error.localizedDescription
                 print("Error fetching account: \(error)")
             }
             isLoading = false
+    }
+    
+    func loadSavedProfiles() async {
+        do {
+            let saved = try await accountRepository.fetchRiotAccount()
+            print("✅ Profiles in DB:", saved.map { $0.puuid })
+        } catch {
+            print("❌ Failed to fetch profiles:", error)
+        }
     }
 }
 

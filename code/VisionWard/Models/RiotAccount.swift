@@ -7,7 +7,7 @@
 import SwiftData
 
 @Model
-class Account {
+class RiotAccount {
     @Attribute(.unique) var riotID: String
     @Attribute(.unique) var puuid: String
     var tagName: String

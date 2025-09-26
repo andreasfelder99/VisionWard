@@ -8,8 +8,12 @@ import SwiftUI
 import SwiftData
 
 struct AccountDetailsView: View {
-    @State private var accountViewModel = AccountViewModel()
+    @State private var accountViewModel : AccountViewModel
     
+    init(context: ModelContext) {
+        let repository = RiotAccountRepository(context: context)
+        self.accountViewModel = AccountViewModel(repository: repository)
+    }
     
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
@@ -19,6 +23,12 @@ struct AccountDetailsView: View {
                             await testRiot()
                         }
                     }
+                Button("Test SwiftData") {
+                    Task {
+                        await accountViewModel.loadSavedProfiles()
+                    }
+                }
+                
             }
             if accountViewModel.isLoading {
                 ProgressView("Fetching data...")
@@ -28,6 +38,12 @@ struct AccountDetailsView: View {
                 Text("PUUID: \(account.puuid)")
                 Text("Game Name: \(account.gameName)")
                 Text("Tag Line: \(account.tagLine)")
+                Spacer()
+                Button("Test SwiftData") {
+                    Task {
+                        await accountViewModel.loadSavedProfiles()
+                    }
+                }
             } else if let error = accountViewModel.errorMessage {
                 Text("Error: \(error)")
                     .foregroundColor(.red)
@@ -43,6 +59,6 @@ struct AccountDetailsView: View {
     }
 }
 
-#Preview {
-    AccountDetailsView()
-}
+//#Preview {
+//    AccountDetailsView(context: ModelContext(Schema([Account.self])))
+//}
