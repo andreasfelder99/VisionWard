@@ -11,17 +11,13 @@ class RiotAPIService {
     private let session = URLSession.shared
     private var _apiKey: String?
     
-    // A computed property that handles retrieval and caching
     var apiKey: String {
-        // If the key has already been loaded, return it
         if let key = _apiKey {
             return key
         }
-        
-        // Otherwise, attempt to load it and handle errors
         do {
             let key = try getAPIKey()
-            _apiKey = key // Store the key for future use
+            _apiKey = key
             return key
         } catch {
             fatalError("Failed to retrieve API key: \(error.localizedDescription)")

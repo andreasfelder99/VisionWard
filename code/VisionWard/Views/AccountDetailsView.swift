@@ -8,57 +8,87 @@ import SwiftUI
 import SwiftData
 
 struct AccountDetailsView: View {
-    @State private var accountViewModel : AccountViewModel
+    @State private var accountViewModel: AccountViewModel
+    
+    @AppStorage("defaultGameName") private var gameName: String = ""
+    @AppStorage("defaultTagLine") private var tagLine: String = ""
+    
+    @State private var isShowingSettings = false
+    
+    private var isDefaultAccountSet: Bool {
+        !gameName.isEmpty && !tagLine.isEmpty
+    }
     
     init(context: ModelContext) {
         let repository = RiotAccountRepository(context: context)
-        self.accountViewModel = AccountViewModel(repository: repository)
+        _accountViewModel = State(initialValue: AccountViewModel(repository: repository))
     }
     
     var body: some View {
-        VStack(alignment: .center, spacing: 10) {
-            if accountViewModel.account == nil {
-                    Button("Test Riot API") {
-                        Task {
-                            await testRiot()
-                        }
+        NavigationStack {
+            VStack(alignment: .center, spacing: 20) {
+                if accountViewModel.isLoading {
+                    ProgressView("Looking up \(gameName)#\(tagLine)...")
+                } else if let account = accountViewModel.account {
+                    Text("Account Found:")
+                        .font(.headline)
+                    Text("Game Name: \(account.gameName)")
+                    Text("PUUID: \(account.puuid)")
+                    Text("Tag Line: \(account.tagLine)")
+                    Spacer()
+                } else if let error = accountViewModel.errorMessage {
+                    Text("Error: \(error)")
+                        .foregroundColor(.red)
+                    Spacer()
+                } else {
+                    Spacer()
+                    if isDefaultAccountSet {
+                        Text("Ready to look up default account:")
+                        Text("\(gameName) #\(tagLine)")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                    } else {
+                        Text("No default account set.")
+                            .foregroundColor(.secondary)
+                        Text("Please tap the gear icon to set it.")
                     }
-                Button("Test SwiftData") {
-                    Task {
-                        await accountViewModel.loadSavedProfiles()
-                    }
+                    Spacer()
                 }
                 
-            }
-            if accountViewModel.isLoading {
-                ProgressView("Fetching data...")
-            } else if let account = accountViewModel.account {
-                Text("Account Found:")
-                    .font(.headline)
-                Text("PUUID: \(account.puuid)")
-                Text("Game Name: \(account.gameName)")
-                Text("Tag Line: \(account.tagLine)")
-                Spacer()
-                Button("Test SwiftData") {
-                    Task {
-                        await accountViewModel.loadSavedProfiles()
+                Button(isDefaultAccountSet ? "Lookup Default Account" : "Set Default Account") {
+                    if isDefaultAccountSet {
+                        Task {
+                            await lookupDefaultAccount()
+                        }
+                    } else {
+                        isShowingSettings = true
                     }
                 }
-            } else if let error = accountViewModel.errorMessage {
-                Text("Error: \(error)")
-                    .foregroundColor(.red)
-            } else {
-                Text("Press the button to test the Riot API.")
+                .buttonStyle(.borderedProminent)
+                .disabled(accountViewModel.isLoading)
+                .disabled(isDefaultAccountSet ? false : false)
+
+            }
+            .padding()
+            .navigationTitle("Account Lookup")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        isShowingSettings = true
+                    } label: {
+                        Image(systemName: "gear")
+                    }
+                }
+            }
+            .sheet(isPresented: $isShowingSettings) {
+                SettingsView()
             }
         }
     }
     
-    private func testRiot() async {
-        print("riot pressed..")
-        await accountViewModel.fetchAccount(gameName: "Enze", tagLine: "0001", region: "euw")
+    private func lookupDefaultAccount() async {
+        guard isDefaultAccountSet else { return }
+        print("Looking up \(gameName)#\(tagLine)...")
+        await accountViewModel.fetchAccount(gameName: gameName, tagLine: tagLine, region: "euw")
     }
 }
-
-//#Preview {
-//    AccountDetailsView(context: ModelContext(Schema([Account.self])))
-//}
